@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:background="@drawable/bg_rounded"
+    android:elevation="8dp"
+    android:padding="8dp"
+    android:layout_marginTop="10dp"
+    android:layout_marginLeft="10dp"
+    android:layout_marginRight="10dp">
+    
+    <ImageView
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:id="@+id/iconChannel"/>
+
+    <TextView
+        android:id="@+id/nameChannel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="8dp"
+        android:layout_marginBottom="8dp"
+        android:layout_toStartOf="@+id/isFavoriteView"
+        android:layout_toEndOf="@+id/iconChannel"
+        android:singleLine="true"
+        android:text="Channel"
+        android:textColor="@color/white"
+        android:textSize="18sp" />
+
+    <TextView
+        android:id="@+id/nameTvShow"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/nameChannel"
+        android:layout_marginStart="8dp"
+        android:layout_toStartOf="@+id/isFavoriteView"
+        android:layout_toEndOf="@+id/iconChannel"
+        android:singleLine="true"
+        android:text="TVshow"
+        android:textColor="@color/white"
+        android:textSize="15sp" />
+
+    <ImageView
+        android:id="@+id/isFavoriteView"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_marginLeft="16dp"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true" />
+
+
+</RelativeLayout>

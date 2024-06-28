@@ -1,4 +1,4 @@
-package com.example.new_practice.storage
+package com.example.new_practice.storage.entities
 
 import androidx.room.Entity
 

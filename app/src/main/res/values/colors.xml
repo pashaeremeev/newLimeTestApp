@@ -2,4 +2,10 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="main">#232427</color>
+    <color name="second">#343438</color>
+    <color name="third">#404247</color>
+    <color name="unselected_text">#80FFFFFF</color>
+    <color name="tab_underline">#0077FF</color>
+    <color name="searchText">#808185</color>
 </resources>
