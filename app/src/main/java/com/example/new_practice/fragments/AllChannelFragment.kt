@@ -19,18 +19,25 @@ import com.example.new_practice.repos.EpgRepo
 
 @UnstableApi
 class AllChannelFragment : Fragment() {
-    private var channelRepo: ChannelRepo? = null
+
+    private var channelRepo: ChannelRepo? = null/*ChannelRepo.getInstance(context)*/
     private var epgRepo: EpgRepo? = null
     private var adapter: ChannelAdapter? = null
     private var liveData: LiveData<ArrayList<Channel>>? = null
+
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val view: View = inflater.inflate(R.layout.fragment_all_channel_list, container, false)
-        channelRepo = ChannelRepo(context)
+        val view: View = inflater.inflate(
+            R.layout.fragment_all_channel_list,
+            container,
+            false)
+        //channelRepo = ChannelRepo(context)
         epgRepo = EpgRepo.getInstance(context)
+        channelRepo = ChannelRepo.getInstance(context)
         liveData = ChannelRepo.liveData
         val recyclerView = view.findViewById<RecyclerView>(R.id.recyclerView)
         recyclerView.layoutManager = LinearLayoutManager(view.context)

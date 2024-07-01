@@ -65,7 +65,14 @@ class ChannelRepo(context: Context?) {
             MutableLiveData<ArrayList<Channel>>(
                 ArrayList<Channel>()
             )
+        private var channelRepo: ChannelRepo? = null
         val liveData: LiveData<ArrayList<Channel>>
             get() = channelMutableLiveData
+        fun getInstance(context: Context?): ChannelRepo {
+            if (channelRepo == null) {
+                channelRepo = ChannelRepo(context!!)
+            }
+            return channelRepo!!
+        }
     }
 }

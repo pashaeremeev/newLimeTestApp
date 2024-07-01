@@ -30,7 +30,8 @@ class FavChannelFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         val view: View = inflater.inflate(R.layout.fragment_fav_channel_list, container, false)
-        channelRepo = ChannelRepo(context)
+        //channelRepo = ChannelRepo(context)
+        channelRepo = ChannelRepo.getInstance(context)
         epgRepo = EpgRepo.getInstance(context)
         liveData = ChannelRepo.liveData
         val recyclerView = view.findViewById<RecyclerView>(R.id.recyclerFavView)
@@ -41,6 +42,11 @@ class FavChannelFragment : Fragment() {
             object : ClickChannelListener {
                 override fun invoke(channel: Channel?) {
                     clickOnChannelView(channel!!)
+                }
+            },
+            object : ClickChannelListener {
+                override fun invoke(channel: Channel?) {
+                    clickOnFavoriteView(channel!!, recyclerView)
                 }
             }
         )
