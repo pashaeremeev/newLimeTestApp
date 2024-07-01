@@ -1,7 +1,7 @@
 package com.example.new_practice.json
 
-import com.example.new_practice.Channel
-import com.example.new_practice.Epg
+import com.example.new_practice.storage.entities.Channel
+import com.example.new_practice.storage.entities.Epg
 import com.example.practice.EpgJson
 
 class ChannelJson(

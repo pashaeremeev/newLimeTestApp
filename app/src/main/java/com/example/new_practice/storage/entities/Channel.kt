@@ -1,7 +1,9 @@
-package com.example.new_practice
+package com.example.new_practice.storage.entities
 
+import androidx.room.Entity
 import java.util.Objects
 
+@Entity(tableName = "channels", primaryKeys = ["id"])
 class Channel(
     val id: Int,
     val name: String,

@@ -5,6 +5,8 @@ import com.example.new_practice.json.ChannelJson
 import com.example.new_practice.json.ChannelJsonModel
 import com.example.new_practice.repos.ChannelRepo
 import com.example.new_practice.repos.EpgRepo
+import com.example.new_practice.storage.entities.Channel
+import com.example.new_practice.storage.entities.Epg
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -41,9 +43,8 @@ class DownloadChannels {
                                     val epg: Epg = channelJson.createEpg()
                                     epgs.add(epg)
                                 }
-                                val channelsRepo: ArrayList<Channel>? =
-                                    ChannelRepo.liveData.value
-
+                                val channelsRepo: List<Channel>? =
+                                    channelRepo.channels.value
                                 for (i in channels.indices) {
                                     if (channels[i].id == channelsRepo?.getOrNull(i)?.id
                                         && channels[i].isFavorite != channelsRepo.getOrNull(i)?.isFavorite

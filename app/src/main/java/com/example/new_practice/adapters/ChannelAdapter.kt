@@ -6,22 +6,22 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import com.example.new_practice.Channel
+import com.example.new_practice.storage.entities.Channel
 import com.example.new_practice.ClickChannelListener
-import com.example.new_practice.Epg
+import com.example.new_practice.storage.entities.Epg
 import com.example.new_practice.R
 import com.example.new_practice.viewHolders.ViewChannelHolder
 
 class ChannelAdapter(
     context: Context,
-    epgs: ArrayList<Epg>,
+    epgs: List<Epg>,
     clickListener: ClickChannelListener,
     favClickListener: ClickChannelListener
 ) : RecyclerView.Adapter<ViewChannelHolder?>() {
     private val clickListener: ClickChannelListener
     private val context: Context
-    private var channels: ArrayList<Channel>? = null
-    private var epgs: ArrayList<Epg>
+    private var channels: List<Channel> = listOf()
+    private var epgs: List<Epg>
     private val favClickListener: ClickChannelListener
 
     init {
@@ -31,11 +31,11 @@ class ChannelAdapter(
         this.favClickListener = favClickListener
     }
 
-    fun setChannels(channels: ArrayList<Channel>?) {
+    fun setChannels(channels: List<Channel>) {
         this.channels = channels
     }
 
-    fun setEpgs(epgs: ArrayList<Epg>) {
+    fun setEpgs(epgs: List<Epg>) {
         this.epgs = epgs
     }
 
@@ -47,7 +47,7 @@ class ChannelAdapter(
     }
 
     override fun onBindViewHolder(holder: ViewChannelHolder, position: Int) {
-        val channelItem: Channel = channels!![position]
+        val channelItem: Channel = channels[position]
         val epgItem: Epg = epgs[position]
         val urlImage = Uri.parse(channelItem.image)
         holder.getNameChannel().text = channelItem.name
@@ -66,6 +66,6 @@ class ChannelAdapter(
     }
 
     override fun getItemCount(): Int {
-        return channels!!.size
+        return channels.size
     }
 }
