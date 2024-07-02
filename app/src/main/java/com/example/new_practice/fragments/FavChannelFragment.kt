@@ -60,17 +60,13 @@ class FavChannelFragment : Fragment() {
         }
         channelRepo?.channels?.observe(viewLifecycleOwner) {
             val favChannels: ArrayList<Channel> = ArrayList<Channel>()
-            val favEpg: ArrayList<Epg> = ArrayList<Epg>()
             for (i in it.indices) {
                 val channel: Channel = it[i]
-                val epg: Epg = epgsFrag!![i]
                 if (channel.isFavorite) {
                     favChannels.add(channel)
-                    favEpg.add(epg)
                 }
             }
             adapter?.setChannels(favChannels)
-            adapter?.setEpgs(favEpg)
             adapter?.notifyDataSetChanged()
         }
         /*liveData!!.observe(

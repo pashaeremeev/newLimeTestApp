@@ -48,10 +48,10 @@ class ChannelAdapter(
 
     override fun onBindViewHolder(holder: ViewChannelHolder, position: Int) {
         val channelItem: Channel = channels[position]
-        val epgItem: Epg = epgs[position]
+        val epgItem: Epg? = epgs.firstOrNull { it.channelId == channelItem.id }
         val urlImage = Uri.parse(channelItem.image)
         holder.getNameChannel().text = channelItem.name
-        holder.getTvShow().text = epgItem.title
+        holder.getTvShow().text = epgItem?.title
         Glide.with(context)
             .load(urlImage)
             .error(R.drawable.image_not_supported)

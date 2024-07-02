@@ -35,7 +35,6 @@ class AllChannelFragment : Fragment() {
             false)
         epgRepo = EpgRepo.getInstance(context)
         channelRepo = ChannelRepo.getInstance(context)
-        //channelLiveData = ChannelRepo.liveData
         val recyclerView = view.findViewById<RecyclerView>(R.id.recyclerView)
         recyclerView.layoutManager = LinearLayoutManager(view.context)
         epgRepo?.epgs?.observe(viewLifecycleOwner) {
