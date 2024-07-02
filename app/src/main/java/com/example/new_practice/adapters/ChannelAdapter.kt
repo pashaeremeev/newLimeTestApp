@@ -4,12 +4,15 @@ import android.content.Context
 import android.net.Uri
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.new_practice.storage.entities.Channel
 import com.example.new_practice.ClickChannelListener
 import com.example.new_practice.storage.entities.Epg
 import com.example.new_practice.R
+import com.example.new_practice.diffUtils.ChannelDiffUtilCallback
+import com.example.new_practice.diffUtils.EpgDiffUtilCallback
 import com.example.new_practice.viewHolders.ViewChannelHolder
 
 class ChannelAdapter(
@@ -21,7 +24,7 @@ class ChannelAdapter(
     private val clickListener: ClickChannelListener
     private val context: Context
     private var channels: List<Channel> = listOf()
-    private var epgs: List<Epg>
+    private var epgs: List<Epg> = listOf()
     private val favClickListener: ClickChannelListener
 
     init {
@@ -31,12 +34,24 @@ class ChannelAdapter(
         this.favClickListener = favClickListener
     }
 
-    fun setChannels(channels: List<Channel>) {
-        this.channels = channels
+    fun setChannels(newChannels: List<Channel>): DiffUtil.DiffResult {
+        val diffUtil = ChannelDiffUtilCallback(channels, newChannels)
+        this.channels = newChannels
+        return DiffUtil.calculateDiff(diffUtil)
     }
 
-    fun setEpgs(epgs: List<Epg>) {
-        this.epgs = epgs
+    fun setEpgs(newEpgs: List<Epg>): DiffUtil.DiffResult {
+        val diffUtil = EpgDiffUtilCallback(epgs, newEpgs)
+        this.epgs = newEpgs
+        return DiffUtil.calculateDiff(diffUtil)
+    }
+
+    fun getChannels(): List<Channel> {
+        return this.channels
+    }
+
+    fun getEpgs(): List<Epg> {
+        return this.epgs
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewChannelHolder {

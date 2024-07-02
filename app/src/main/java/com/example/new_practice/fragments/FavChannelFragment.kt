@@ -22,7 +22,6 @@ class FavChannelFragment : Fragment() {
     private var channelRepo: ChannelRepo? = null
     private var epgRepo: EpgRepo? = null
     private var adapter: ChannelAdapter? = null
-    //private var liveData: LiveData<ArrayList<Channel>>? = null
     private var epgsFrag: List<Epg>? = null
 
     override fun onCreateView(
@@ -33,7 +32,6 @@ class FavChannelFragment : Fragment() {
         val view: View = inflater.inflate(R.layout.fragment_fav_channel_list, container, false)
         channelRepo = ChannelRepo.getInstance(context)
         epgRepo = EpgRepo.getInstance(context)
-        //liveData = ChannelRepo.liveData
         val recyclerView = view.findViewById<RecyclerView>(R.id.recyclerFavView)
         recyclerView.layoutManager = LinearLayoutManager(view.context)
         epgRepo?.epgs?.observe(viewLifecycleOwner) {
@@ -54,38 +52,23 @@ class FavChannelFragment : Fragment() {
                 )
                 recyclerView.adapter = adapter
             } else {
-                adapter?.setEpgs(it)
+                val result = adapter?.setEpgs(it)
+                //adapter?.notifyDataSetChanged()
+                result?.dispatchUpdatesTo(adapter!!)
             }
-            epgsFrag = it
         }
         channelRepo?.channels?.observe(viewLifecycleOwner) {
-            val favChannels: ArrayList<Channel> = ArrayList<Channel>()
+            val newFavChannels: MutableList<Channel> = mutableListOf()
             for (i in it.indices) {
                 val channel: Channel = it[i]
                 if (channel.isFavorite) {
-                    favChannels.add(channel)
+                    newFavChannels.add(channel)
                 }
             }
-            adapter?.setChannels(favChannels)
-            adapter?.notifyDataSetChanged()
+            val result = adapter?.setChannels(newFavChannels)
+            //adapter?.notifyDataSetChanged()
+            result?.dispatchUpdatesTo(adapter!!)
         }
-        /*liveData!!.observe(
-            viewLifecycleOwner
-        ) { list: ArrayList<Channel> ->
-            val favChannels: ArrayList<Channel> = ArrayList<Channel>()
-            val favEpg: ArrayList<Epg> = ArrayList<Epg>()
-            for (i in list.indices) {
-                val channel: Channel = list[i]
-                val epg: Epg = epgRepo!!.epgs.get(i)
-                if (channel.isFavorite) {
-                    favChannels.add(channel)
-                    favEpg.add(epg)
-                }
-            }
-            adapter!!.setChannels(favChannels)
-            adapter!!.setEpgs(favEpg)
-            adapter!!.notifyDataSetChanged()
-        }*/
         DownloadChannels.downloadChannels(channelRepo!!, epgRepo!!) { isSuccess ->
             if (!isSuccess!!) {
                 return@downloadChannels null

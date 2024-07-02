@@ -21,4 +21,7 @@ interface EpgsDao {
     @Query("SELECT * FROM epgs WHERE id = :channelId")
     fun getEpgByChannelId(channelId: Int): LiveData<List<Epg>>
 
+    @Query("SELECT * FROM epgs WHERE id = :channelId")
+    fun getEpgByChannelIdNow(channelId: Int): List<Epg>
+
 }

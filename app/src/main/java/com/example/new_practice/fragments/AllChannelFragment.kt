@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.media3.common.util.UnstableApi
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.new_practice.storage.entities.Channel
@@ -13,13 +14,15 @@ import com.example.new_practice.ClickChannelListener
 import com.example.new_practice.DownloadChannels
 import com.example.new_practice.R
 import com.example.new_practice.adapters.ChannelAdapter
+import com.example.new_practice.diffUtils.ChannelDiffUtilCallback
+import com.example.new_practice.diffUtils.EpgDiffUtilCallback
 import com.example.new_practice.repos.ChannelRepo
 import com.example.new_practice.repos.EpgRepo
 
 @UnstableApi
 class AllChannelFragment : Fragment() {
 
-    private var channelRepo: ChannelRepo? = null
+    private lateinit var channelRepo: ChannelRepo
     private var epgRepo: EpgRepo? = null
     private var adapter: ChannelAdapter? = null
     //private var channelLiveData: LiveData<ArrayList<Channel>>? = null
@@ -55,22 +58,26 @@ class AllChannelFragment : Fragment() {
                 )
                 recyclerView.adapter = adapter
             } else {
-                adapter?.setEpgs(it)
+                val result = adapter?.setEpgs(it)
+                //adapter?.notifyDataSetChanged()
+                result?.dispatchUpdatesTo(adapter!!)
             }
 
         }
         channelRepo?.channels?.observe(viewLifecycleOwner) {
-            adapter?.setChannels(it)
-            adapter?.notifyDataSetChanged()
+            val result = adapter?.setChannels(it)
+            result?.dispatchUpdatesTo(adapter!!)
+            //adapter?.notifyDataSetChanged()
         }
         DownloadChannels.downloadChannels(channelRepo!!, epgRepo!!) { isSuccess ->
             if (!isSuccess!!) {
                 return@downloadChannels null
             }
-            epgRepo?.epgs?.observe(viewLifecycleOwner) {
-                adapter?.setEpgs(it)
-                adapter?.notifyDataSetChanged()
-            }
+//            epgRepo?.epgs?.observe(viewLifecycleOwner) {
+//                val result = adapter?.setEpgs(it)
+//                //adapter?.notifyDataSetChanged()
+//                result?.dispatchUpdatesTo(adapter!!)
+//            }
             null
         }
         recyclerView.adapter = adapter

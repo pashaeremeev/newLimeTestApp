@@ -48,20 +48,6 @@ class ChannelRepo(context: Context) {
             return appDatabase.channelsDao().getChannels()
         }
 
-    val favChannels: ArrayList<Channel>
-        get() {
-            val listJsonString: String? = preferencesRepo[KEY_CHANNEL]
-            val type = object : TypeToken<ArrayList<Channel?>?>() {}.type
-            val channels: ArrayList<Channel> = Gson().fromJson(listJsonString, type)
-            val favChannels: ArrayList<Channel> = ArrayList<Channel>()
-            for (i in channels.indices) {
-                if (channels[i].isFavorite) {
-                    favChannels.add(channels[i])
-                }
-            }
-            return channels
-        }
-
     fun getById(id: Int): LiveData<Channel?> {
         return appDatabase.channelsDao().getChannelById(id).map { return@map it.firstOrNull() }
     }

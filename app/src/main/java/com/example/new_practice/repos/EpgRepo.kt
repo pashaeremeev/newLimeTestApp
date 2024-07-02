@@ -52,6 +52,10 @@ class EpgRepo private constructor(context: Context) {
         return appDatabase.epgsDao().getEpgByChannelId(id).map { return@map it.firstOrNull() }
     }
 
+    fun getByChannelIdNow(id: Int): Epg? {
+        return appDatabase.epgsDao().getEpgByChannelIdNow(id).firstOrNull()
+    }
+
     companion object {
         private const val KEY_EPG = "epg"
         private var epgRepo: EpgRepo? = null
