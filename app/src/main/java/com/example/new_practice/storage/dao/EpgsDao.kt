@@ -18,10 +18,10 @@ interface EpgsDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun saveEpgs(epgs: List<Epg>)
 
-    @Query("SELECT * FROM epgs WHERE id = :channelId")
+    @Query("SELECT * FROM epgs WHERE channelId = :channelId")
     fun getEpgByChannelId(channelId: Int): LiveData<List<Epg>>
 
-    @Query("SELECT * FROM epgs WHERE id = :channelId")
+    @Query("SELECT * FROM epgs WHERE channelId = :channelId")
     fun getEpgByChannelIdNow(channelId: Int): List<Epg>
 
 }
