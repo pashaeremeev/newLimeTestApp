@@ -4,9 +4,8 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.LiveData
+import androidx.lifecycle.asLiveData
 import androidx.media3.common.util.UnstableApi
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -18,6 +17,8 @@ import com.example.new_practice.R
 import com.example.new_practice.adapters.ChannelAdapter
 import com.example.new_practice.repos.ChannelRepo
 import com.example.new_practice.repos.EpgRepo
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.combine
 
 @UnstableApi
 class ChannelFragment(private val position: Int): Fragment() {
@@ -30,8 +31,7 @@ class ChannelFragment(private val position: Int): Fragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-
+    ): View {
         val view: View = inflater.inflate(
             R.layout.fragment_channel_list,
             container,
@@ -41,16 +41,10 @@ class ChannelFragment(private val position: Int): Fragment() {
         channelRepo = ChannelRepo.getInstance(context)
 
         val recyclerView = view.findViewById<RecyclerView>(R.id.recyclerView)
-
-        val root = inflater.inflate(
-            R.layout.activity_main,
-            container,
-            false)
-
-        val searchView = root.findViewById<SearchView>(R.id.searchView)
+        recyclerView.adapter = adapter
 
         recyclerView.layoutManager = LinearLayoutManager(view.context)
-        epgRepo?.epgs?.observe(viewLifecycleOwner) {
+        epgRepo.epgs.observe(viewLifecycleOwner) {
             if (adapter == null) {
                 adapter = ChannelAdapter(
                     view.context,
@@ -69,14 +63,24 @@ class ChannelFragment(private val position: Int): Fragment() {
                 recyclerView.adapter = adapter
             } else {
                 val result = adapter?.setEpgs(it)
-                //adapter?.notifyDataSetChanged()
                 result?.dispatchUpdatesTo(adapter!!)
             }
 
         }
-        channelRepo.channels.observe(viewLifecycleOwner) {
-            val result: DiffUtil.DiffResult?
-            if (position == 1) {
+        channelRepo.channelsFlow.combine(channelRepo.searchFlow) { channels, filter ->
+            var filteredChannelsList: ArrayList<Channel> = arrayListOf()
+            if (filter.isNotEmpty()) {
+                for (channel in channels) {
+                    if (channel.name.contains(filter, ignoreCase = true)) {
+                        filteredChannelsList.add(channel)
+                    }
+                }
+            } else {
+                filteredChannelsList = channels as ArrayList<Channel>
+            }
+            return@combine filteredChannelsList
+        }.asLiveData(context = Dispatchers.IO).observe(viewLifecycleOwner) {
+            val result: DiffUtil.DiffResult? = if (position == 1) {
                 val newFavChannels: MutableList<Channel> = mutableListOf()
                 for (i in it.indices) {
                     val channel: Channel = it[i]
@@ -84,32 +88,31 @@ class ChannelFragment(private val position: Int): Fragment() {
                         newFavChannels.add(channel)
                     }
                 }
-                result = adapter?.setChannels(newFavChannels)
+                adapter?.setChannels(newFavChannels)
             } else {
-                result = adapter?.setChannels(it)
+                adapter?.setChannels(it)
             }
             result?.dispatchUpdatesTo(adapter!!)
-            //adapter?.notifyDataSetChanged()
         }
-        DownloadChannels.downloadChannels(channelRepo!!, epgRepo!!) { isSuccess ->
+
+        DownloadChannels.downloadChannels(channelRepo, epgRepo) { isSuccess ->
             if (!isSuccess!!) {
                 return@downloadChannels null
             }
             null
         }
-        recyclerView.adapter = adapter
+
         return view
     }
 
-    private fun clickOnChannelView(channel: Channel): Void? {
+    private fun clickOnChannelView(channel: Channel) {
         val fragmentManager = requireActivity().supportFragmentManager
         val fragmentTransaction = fragmentManager.beginTransaction()
         fragmentTransaction.replace(R.id.videoCntainer, VideoFragment.getInstance(channel.id))
         fragmentTransaction.commitAllowingStateLoss()
-        return null
     }
 
     private fun clickOnFavoriteView(channel: Channel) {
-        channelRepo?.changeFav(channelId = channel.id)
+        channelRepo.changeFav(channelId = channel.id)
     }
 }

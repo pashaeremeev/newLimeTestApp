@@ -2,25 +2,29 @@ package com.example.new_practice.repos
 
 import android.content.Context
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.map
 import com.example.new_practice.storage.entities.Channel
 import com.example.new_practice.storage.AppDatabase
 import com.example.new_practice.storage.RoomInstance
-import com.google.common.reflect.TypeToken
-import com.google.gson.Gson
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 
 class ChannelRepo(context: Context) {
     //private val preferencesRepo: PreferencesRepo
     private val appDatabase: AppDatabase
 
+    val searchFlow: MutableStateFlow<String> = MutableStateFlow("")
+
+    fun setSearchFilter(text: String) {
+        searchFlow.value = text
+    }
+
     init {
         //preferencesRepo = PreferencesRepo(context)
         appDatabase = RoomInstance.getInstance(context)
-        channels
     }
 
     fun saveChannels(channels: List<Channel>) {
@@ -49,14 +53,7 @@ class ChannelRepo(context: Context) {
             return appDatabase.channelsDao().getChannels()
         }
 
-//    val searchChannels: LiveData<List<Channel>>
-//        get() {
-//            return searchChannels
-//        }
-//
-//    fun searchChannels(text: String) {
-//        this.searchChannels = appDatabase.channelsDao().searchChannels(text)
-//    }
+    val channelsFlow: Flow<List<Channel>> = appDatabase.channelsDao().getChannelsFlow()
 
     fun getById(id: Int): LiveData<Channel?> {
         return appDatabase.channelsDao().getChannelById(id).map { return@map it.firstOrNull() }

@@ -6,6 +6,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.example.new_practice.storage.entities.Channel
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface ChannelsDao {
@@ -27,6 +28,9 @@ interface ChannelsDao {
     @Query("UPDATE channels SET isFavorite = not(isFavorite) WHERE id = :channelId")
     fun changeFav(channelId: Int)
 
-    @Query("SELECT * FROM channels WHERE name like '%'||:text||'%'")
-    fun searchChannels(text: String): LiveData<List<Channel>>
+    /*@Query("SELECT * FROM channels WHERE name like '%'||:text||'%'")
+    fun searchChannels(text: String): LiveData<List<Channel>>*/
+
+    @Query("SELECT * FROM channels")
+    fun getChannelsFlow(): Flow<List<Channel>>
 }
