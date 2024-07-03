@@ -1,9 +1,11 @@
 package com.example.new_practice.fragments
 
+import android.opengl.Visibility
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.asLiveData
 import androidx.media3.common.util.UnstableApi
@@ -33,7 +35,7 @@ class ChannelFragment(private val position: Int): Fragment() {
         savedInstanceState: Bundle?
     ): View {
         val view: View = inflater.inflate(
-            R.layout.fragment_channel_list,
+            R.layout.all_channels,
             container,
             false)
 
@@ -41,6 +43,7 @@ class ChannelFragment(private val position: Int): Fragment() {
         channelRepo = ChannelRepo.getInstance(context)
 
         val recyclerView = view.findViewById<RecyclerView>(R.id.recyclerView)
+        val searchTextView = view.findViewById<TextView>(R.id.searchTextView)
         recyclerView.adapter = adapter
 
         recyclerView.layoutManager = LinearLayoutManager(view.context)
@@ -67,6 +70,7 @@ class ChannelFragment(private val position: Int): Fragment() {
             }
 
         }
+        // Получаем каналы из БД и текст из поля поиска
         channelRepo.channelsFlow.combine(channelRepo.searchFlow) { channels, filter ->
             var filteredChannelsList: ArrayList<Channel> = arrayListOf()
             if (filter.isNotEmpty()) {
@@ -91,6 +95,11 @@ class ChannelFragment(private val position: Int): Fragment() {
                 adapter?.setChannels(newFavChannels)
             } else {
                 adapter?.setChannels(it)
+            }
+            if (adapter?.getChannels()!!.isEmpty()) {
+                searchTextView.visibility = View.VISIBLE
+            } else {
+                searchTextView.visibility = View.GONE
             }
             result?.dispatchUpdatesTo(adapter!!)
         }
