@@ -12,6 +12,9 @@ interface ChannelsDao {
     @Query("SELECT * FROM channels")
     fun getChannels(): LiveData<List<Channel>>
 
+    @Query("SELECT * FROM channels WHERE isFavorite")
+    fun getFavChannels(): LiveData<List<Channel>>
+
     @Query("SELECT * FROM channels")
     fun getChannelsNow(): List<Channel>
 
@@ -23,4 +26,7 @@ interface ChannelsDao {
 
     @Query("UPDATE channels SET isFavorite = not(isFavorite) WHERE id = :channelId")
     fun changeFav(channelId: Int)
+
+    @Query("SELECT * FROM channels WHERE name like '%'||:text||'%'")
+    fun searchChannels(text: String): LiveData<List<Channel>>
 }

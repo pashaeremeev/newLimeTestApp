@@ -19,10 +19,10 @@ import com.example.new_practice.repos.EpgRepo
 
 @UnstableApi
 class FavChannelFragment : Fragment() {
-    private var channelRepo: ChannelRepo? = null
-    private var epgRepo: EpgRepo? = null
+
+    private lateinit var channelRepo: ChannelRepo
+    private lateinit var epgRepo: EpgRepo
     private var adapter: ChannelAdapter? = null
-    private var epgsFrag: List<Epg>? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,

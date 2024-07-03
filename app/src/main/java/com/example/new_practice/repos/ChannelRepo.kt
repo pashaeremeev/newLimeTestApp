@@ -2,6 +2,7 @@ package com.example.new_practice.repos
 
 import android.content.Context
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.map
 import com.example.new_practice.storage.entities.Channel
 import com.example.new_practice.storage.AppDatabase
@@ -13,11 +14,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class ChannelRepo(context: Context) {
-    private val preferencesRepo: PreferencesRepo
+    //private val preferencesRepo: PreferencesRepo
     private val appDatabase: AppDatabase
 
     init {
-        preferencesRepo = PreferencesRepo(context)
+        //preferencesRepo = PreferencesRepo(context)
         appDatabase = RoomInstance.getInstance(context)
         channels
     }
@@ -47,6 +48,15 @@ class ChannelRepo(context: Context) {
         get() {
             return appDatabase.channelsDao().getChannels()
         }
+
+//    val searchChannels: LiveData<List<Channel>>
+//        get() {
+//            return searchChannels
+//        }
+//
+//    fun searchChannels(text: String) {
+//        this.searchChannels = appDatabase.channelsDao().searchChannels(text)
+//    }
 
     fun getById(id: Int): LiveData<Channel?> {
         return appDatabase.channelsDao().getChannelById(id).map { return@map it.firstOrNull() }
