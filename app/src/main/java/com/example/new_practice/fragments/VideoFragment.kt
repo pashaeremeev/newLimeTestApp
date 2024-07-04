@@ -45,8 +45,9 @@ class VideoFragment : Fragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         val fragment: View = inflater.inflate(R.layout.fragment_videoplayer, container, false)
+
         container!!.visibility = View.VISIBLE
         playerView = fragment.findViewById(R.id.exoplayerView)
         progressBar = fragment.findViewById(R.id.progressBar)
@@ -59,6 +60,7 @@ class VideoFragment : Fragment() {
         val fullScreenBtn: ImageView? = playerView?.findViewById(R.id.fullscreenBtn)
         val backBtn: ImageView? = playerView?.findViewById(R.id.backBtn)
         val tvShow: TextView? = playerView?.findViewById(R.id.tvShow)
+
         channelRepo.getById(channelId).observe(viewLifecycleOwner) { channel ->
             val videoUrl = Uri.parse(channel?.stream)
             Glide.with(requireContext())
@@ -81,113 +83,118 @@ class VideoFragment : Fragment() {
             //        player.setMediaItem(mediaItem);
             player?.prepare()
             player?.playWhenReady = true
-            val newTimeBar: SeekBar? = playerView?.findViewById(R.id.newProgress)
-
-            newTimeBar?.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
-                override fun onProgressChanged(seekBar: SeekBar, i: Int, b: Boolean) {}
-                override fun onStartTrackingTouch(seekBar: SeekBar) {}
-                override fun onStopTrackingTouch(seekBar: SeekBar) {}
-            })
-            settingsBtn?.setOnClickListener {
-                val qualities: ArrayList<Quality> = ArrayList<Quality>()
-                if (player?.currentTracks!!.groups.size > 0) {
-                    for (i in 0 until player?.currentTracks!!.groups[0].length) {
-                        val height: Int = player?.currentTracks!!.groups[0].mediaTrackGroup
-                            .getFormat(i).height
-                        val width: Int = player?.currentTracks!!.groups[0].mediaTrackGroup
-                            .getFormat(i).width
-                        qualities.add(Quality(width, height, i))
-                    }
-                    var currentIndex = qualities.size
-                    qualities.add(Quality(-1, -1, qualities.size))
-                    for (i in 0 until player?.currentTracks!!.groups[0].length) {
-                        if (player?.currentTracks!!.groups[0].isTrackSelected(i)
-                            && !player?.trackSelector!!.parameters.overrides.isEmpty()
-                        ) {
-                            currentIndex = i
-                        }
-                    }
-                    if (!ItemQualityFragment.isExist) {
-                        val itemQualityFragment: ItemQualityFragment =
-                            ItemQualityFragment.getInstance(qualities, currentIndex)
-                        itemQualityFragment.show(requireActivity().supportFragmentManager, null)
-                    }
-                    requireActivity().supportFragmentManager
-                        .setFragmentResultListener(
-                            ItemQualityFragment.REQUEST_KEY,
-                            this
-                        ) { requestKey: String?, result: Bundle ->
-                            val index = result.getInt(ItemQualityFragment.BUNDLE_KEY)
-                            if (index + 1 == qualities.size) {
-                                val parameters: TrackSelectionParameters =
-                                    player?.trackSelector!!.parameters.buildUpon()
-                                        .clearOverrides()
-                                        .build()
-                                player?.trackSelector!!.parameters = parameters
-                            } else {
-                                val parameters: TrackSelectionParameters =
-                                    player?.trackSelector!!.parameters.buildUpon().addOverride(
-                                        TrackSelectionOverride(
-                                            player?.currentTracks!!.groups[0].mediaTrackGroup,
-                                            index
-                                        )
-                                    ).build()
-                                player?.trackSelector!!.parameters = parameters
-                            }
-                            requireActivity().supportFragmentManager
-                                .clearFragmentResultListener(ItemQualityFragment.REQUEST_KEY)
-                        }
-                }
-            }
-            fullScreenBtn?.setOnClickListener {
-                if (isFullScreen) {
-                    requireActivity().requestedOrientation =
-                        ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
-                    isFullScreen = false
-                } else {
-                    requireActivity().requestedOrientation =
-                        ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
-                    isFullScreen = true
-                }
-            }
-            backBtn?.setOnClickListener {
-                onDestroyView()
-                onDestroy()
-                requireActivity().requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
-            }
-
-            player?.addListener(object : Player.Listener {
-                override fun onPlaybackStateChanged(state: Int) {
-                    if (state == Player.STATE_READY) {
-                        newTimeBar?.max = player?.duration as Int
-                        runnable = Runnable {
-                            newTimeBar?.progress = player?.currentPosition as Int
-                            handler.postDelayed(runnable!!, 1000)
-                        }
-                        handler.postDelayed(runnable!!, 0)
-                        progressBar?.visibility = View.GONE
-                    } else if (state == Player.STATE_BUFFERING) {
-                        progressBar?.visibility = View.VISIBLE
-                    } else {
-                        progressBar?.visibility = View.GONE
-                    }
-                }
-            })
-            val ppBtn: ImageView? = playerView?.findViewById(R.id.exo_play)
-            ppBtn?.setOnClickListener { view: View? ->
-                if (player?.isPlaying == true) {
-                    player?.pause()
-                    player?.playWhenReady = false
-                    ppBtn?.setImageResource(R.drawable.ic_arrow_play)
-                } else {
-                    player?.play()
-                    player?.playWhenReady = false
-                    ppBtn?.setImageResource(R.drawable.ic_pause)
-                }
-            }
         }
+
         epgRepo.getByChannelId(channelId).observe(viewLifecycleOwner) { epg ->
             tvShow!!.text = epg?.title
+        }
+        val newTimeBar: SeekBar? = playerView?.findViewById(R.id.newProgress)
+
+        newTimeBar?.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar, i: Int, b: Boolean) {}
+            override fun onStartTrackingTouch(seekBar: SeekBar) {}
+            override fun onStopTrackingTouch(seekBar: SeekBar) {}
+        })
+
+        settingsBtn?.setOnClickListener {
+            val qualities: ArrayList<Quality> = ArrayList<Quality>()
+            if (player?.currentTracks!!.groups.size > 0) {
+                for (i in 0 until player?.currentTracks!!.groups[0].length) {
+                    val height: Int = player?.currentTracks!!.groups[0].mediaTrackGroup
+                        .getFormat(i).height
+                    val width: Int = player?.currentTracks!!.groups[0].mediaTrackGroup
+                        .getFormat(i).width
+                    qualities.add(Quality(width, height, i))
+                }
+                var currentIndex = qualities.size
+                qualities.add(Quality(-1, -1, qualities.size))
+                for (i in 0 until player?.currentTracks!!.groups[0].length) {
+                    if (player?.currentTracks!!.groups[0].isTrackSelected(i)
+                        && !player?.trackSelector!!.parameters.overrides.isEmpty()
+                    ) {
+                        currentIndex = i
+                    }
+                }
+                if (!ItemQualityFragment.isExist) {
+                    val itemQualityFragment: ItemQualityFragment =
+                        ItemQualityFragment.getInstance(qualities, currentIndex)
+                    itemQualityFragment.show(requireActivity().supportFragmentManager, null)
+                }
+                requireActivity().supportFragmentManager
+                    .setFragmentResultListener(
+                        ItemQualityFragment.REQUEST_KEY,
+                        this
+                    ) { requestKey: String?, result: Bundle ->
+                        val index = result.getInt(ItemQualityFragment.BUNDLE_KEY)
+                        if (index + 1 == qualities.size) {
+                            val parameters: TrackSelectionParameters =
+                                player?.trackSelector!!.parameters.buildUpon()
+                                    .clearOverrides()
+                                    .build()
+                            player?.trackSelector!!.parameters = parameters
+                        } else {
+                            val parameters: TrackSelectionParameters =
+                                player?.trackSelector!!.parameters.buildUpon().addOverride(
+                                    TrackSelectionOverride(
+                                        player?.currentTracks!!.groups[0].mediaTrackGroup,
+                                        index
+                                    )
+                                ).build()
+                            player?.trackSelector!!.parameters = parameters
+                        }
+                        requireActivity().supportFragmentManager
+                            .clearFragmentResultListener(ItemQualityFragment.REQUEST_KEY)
+                    }
+            }
+        }
+
+        fullScreenBtn?.setOnClickListener {
+            if (isFullScreen) {
+                requireActivity().requestedOrientation =
+                    ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+                isFullScreen = false
+            } else {
+                requireActivity().requestedOrientation =
+                    ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+                isFullScreen = true
+            }
+        }
+
+        backBtn?.setOnClickListener {
+            onDestroyView()
+            onDestroy()
+            requireActivity().requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+        }
+
+        player?.addListener(object : Player.Listener {
+            override fun onPlaybackStateChanged(state: Int) {
+                if (state == Player.STATE_READY) {
+                    newTimeBar?.max = player?.duration as Int
+                    runnable = Runnable {
+                        newTimeBar?.progress = player?.currentPosition as Int
+                        handler.postDelayed(runnable!!, 1000)
+                    }
+                    handler.postDelayed(runnable!!, 0)
+                    progressBar?.visibility = View.GONE
+                } else if (state == Player.STATE_BUFFERING) {
+                    progressBar?.visibility = View.VISIBLE
+                } else {
+                    progressBar?.visibility = View.GONE
+                }
+            }
+        })
+
+        val ppBtn: ImageView? = playerView?.findViewById(R.id.exo_play)
+        ppBtn?.setOnClickListener { view: View? ->
+            if (player?.isPlaying == true) {
+                player?.pause()
+                player?.playWhenReady = false
+                ppBtn?.setImageResource(R.drawable.ic_arrow_play)
+            } else {
+                player?.play()
+                player?.playWhenReady = false
+                ppBtn?.setImageResource(R.drawable.ic_pause)
+            }
         }
 
         //getActivity().getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
@@ -196,6 +203,7 @@ class VideoFragment : Fragment() {
 //        Uri videoUrl = Uri.parse("http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4");
 //        Uri videoUrl = Uri.parse("https://alanza.iptv2022.com/Miami_TV/index.m3u8");
 //        Uri videoUrl = Uri.parse("https://alanza.iptv2022.com/LawCrime-eng/index.m3u8");
+
         val trackSelector = DefaultTrackSelector(requireContext())
         trackSelector.setParameters(trackSelector.buildUponParameters().setMaxVideoSizeSd())
         val loadControl: LoadControl = DefaultLoadControl()
