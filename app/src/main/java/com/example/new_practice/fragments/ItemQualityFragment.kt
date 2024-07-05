@@ -1,14 +1,12 @@
 package com.example.new_practice.fragments
 
 import android.content.DialogInterface
-import android.os.Build
 import android.os.Bundle
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
-import androidx.annotation.RequiresApi
 import androidx.fragment.app.DialogFragment
 import androidx.media3.common.util.UnstableApi
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -23,14 +21,14 @@ class ItemQualityFragment : DialogFragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         val view: View = inflater.inflate(R.layout.quality_list, container, false)
         val recyclerView = view.findViewById<RecyclerView>(R.id.qualityList)
         recyclerView.layoutManager = LinearLayoutManager(view.context)
         val qualities: ArrayList<Quality> =
             if (arguments != null) arguments?.getSerializable(
                 LIST_BUNDLE_KEY
-            ) as ArrayList<Quality> else ArrayList<Quality>()
+            ) as ArrayList<Quality> else ArrayList()
         recyclerView.adapter = QualityAdapter(
             view.context,
             qualities,
@@ -60,7 +58,7 @@ class ItemQualityFragment : DialogFragment() {
         super.onStart()
         val window = dialog!!.window
         window!!.clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND)
-        window.setGravity(Gravity.RIGHT or Gravity.BOTTOM)
+        window.setGravity(Gravity.END or Gravity.BOTTOM)
         window.setBackgroundDrawable(
             resources.getDrawable(R.drawable.bg_quality, activity?.theme)
         )

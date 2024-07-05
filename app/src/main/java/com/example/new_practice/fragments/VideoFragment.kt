@@ -5,6 +5,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,7 +15,9 @@ import android.widget.SeekBar
 import android.widget.SeekBar.OnSeekBarChangeListener
 import android.widget.TextView
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.asLiveData
 import androidx.media3.common.MediaItem
+import androidx.media3.common.PlaybackException
 import androidx.media3.common.Player
 import androidx.media3.common.TrackSelectionOverride
 import androidx.media3.common.TrackSelectionParameters
@@ -27,11 +30,19 @@ import androidx.media3.exoplayer.hls.HlsMediaSource
 import androidx.media3.exoplayer.source.MediaSource
 import androidx.media3.exoplayer.trackselection.DefaultTrackSelector
 import androidx.media3.ui.PlayerView
+import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.example.new_practice.ClickIconListener
 import com.example.new_practice.Quality
 import com.example.new_practice.R
+import com.example.new_practice.adapters.ChannelIconAdapter
 import com.example.new_practice.repos.ChannelRepo
 import com.example.new_practice.repos.EpgRepo
+import com.example.new_practice.storage.entities.Channel
+import com.example.new_practice.storage.entities.Epg
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.combine
+
 
 @UnstableApi
 class VideoFragment : Fragment() {
@@ -41,6 +52,15 @@ class VideoFragment : Fragment() {
     private var isFullScreen = false
     private var runnable: Runnable? = null
     private val handler = Handler(Looper.getMainLooper())
+    private lateinit var adapter: ChannelIconAdapter
+
+    private var channelId: Int? = null
+    private var channels: List<Channel> = listOf()
+    private lateinit var iconChannel: ImageView
+    private lateinit var toPrevChannel: ImageView
+    private lateinit var toNextChannel: ImageView
+    private lateinit var channelName: TextView
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -53,41 +73,69 @@ class VideoFragment : Fragment() {
         progressBar = fragment.findViewById(R.id.progressBar)
         val channelRepo = ChannelRepo.getInstance(context)
         val epgRepo = EpgRepo.getInstance(context)
-        val channelId = requireArguments().getInt(BUNDLE_ID_KEY)
-        val iconChannel: ImageView? = playerView?.findViewById(R.id.iconChannel)
-        val channelName: TextView? = playerView?.findViewById(R.id.name)
+        //channelId = requireArguments().getInt(BUNDLE_ID_KEY)
+        channelRepo.currentChannelId.value = requireArguments().getInt(BUNDLE_ID_KEY)
+
+        adapter = ChannelIconAdapter(requireContext(), object : ClickIconListener {
+            override fun invoke(channel: Channel) {
+                updateChannel(channel.id)
+                channelRepo.currentChannelId.value = channel.id
+            }
+        })
+
+        iconChannel = playerView!!.findViewById(R.id.iconChannel)
+        channelName = playerView!!.findViewById(R.id.name)
+        toPrevChannel = playerView!!.findViewById(R.id.toBackChannel)
+        toNextChannel = playerView!!.findViewById(R.id.toFwdChannel)
+
+        toPrevChannel.setOnClickListener {
+            val curChannel: Channel? = channels.firstOrNull { it.id == channelId }
+            val index: Int =
+                if (channels.indexOf(curChannel) - 1 < 0) channels.size - 1
+                else channels.indexOf(curChannel) - 1
+            val prevChannel: Channel = channels[index]
+            channelId = prevChannel.id
+            updateChannel(prevChannel.id)
+            channelRepo.currentChannelId.value = prevChannel.id
+        }
+
+        toNextChannel.setOnClickListener {
+            val curChannel: Channel? = channels.firstOrNull { it.id == channelId }
+            val index: Int =
+                if (channels.indexOf(curChannel) + 1 >= channels.size) 0
+                else channels.indexOf(curChannel) + 1
+            val nextChannel: Channel = channels[index]
+            channelId = nextChannel.id
+            updateChannel(nextChannel.id)
+            channelRepo.currentChannelId.value = nextChannel.id
+        }
+
         val settingsBtn: ImageView? = playerView?.findViewById(R.id.settingsBtn)
         val fullScreenBtn: ImageView? = playerView?.findViewById(R.id.fullscreenBtn)
         val backBtn: ImageView? = playerView?.findViewById(R.id.backBtn)
         val tvShow: TextView? = playerView?.findViewById(R.id.tvShow)
+        val catalog: RecyclerView? = playerView?.findViewById(R.id.catalogView)
 
-        channelRepo.getById(channelId).observe(viewLifecycleOwner) { channel ->
-            val videoUrl = Uri.parse(channel?.stream)
-            Glide.with(requireContext())
-                .load(channel?.image)
-                .into(iconChannel!!)
-            channelName!!.text = channel?.name
-            val mediaItem = MediaItem.fromUri(videoUrl)
-            val httpDataSourceFactory: DefaultHttpDataSource.Factory =
-                DefaultHttpDataSource.Factory()
-                    .setConnectTimeoutMs(DefaultHttpDataSource.DEFAULT_CONNECT_TIMEOUT_MILLIS)
-                    .setReadTimeoutMs(DefaultHttpDataSource.DEFAULT_READ_TIMEOUT_MILLIS)
-                    .setAllowCrossProtocolRedirects(true)
-            val requestProperties = HashMap<String, String>()
-            requestProperties["X-LHD-Agent"] =
-                "{\"platform\":\"android\",\"app\":\"stream.tv.online\",\"version_name\":\"3.1.3\",\"version_code\":\"400\",\"sdk\":\"29\",\"name\":\"Huawei+Wgr-w19\",\"device_id\":\"a4ea673248fe0bcc\",\"is_huawei\":\"0\"}"
-            httpDataSourceFactory.setDefaultRequestProperties(requestProperties)
-            val mediaSource: MediaSource =
-                HlsMediaSource.Factory(httpDataSourceFactory).createMediaSource(mediaItem)
-            player?.setMediaSource(mediaSource)
-            //        player.setMediaItem(mediaItem);
-            player?.prepare()
-            player?.playWhenReady = true
+        catalog?.adapter = adapter
+
+        channelRepo.channels.observe(viewLifecycleOwner) { channels ->
+            this.channels = channels
+            val channel: Channel? = channels.firstOrNull { it.id == channelId }
+            channelId = channel?.id
+            //updateChannel(channelId!!)
+            updateChannel(channelRepo.currentChannelId.value!!)
         }
 
-        epgRepo.getByChannelId(channelId).observe(viewLifecycleOwner) { epg ->
-            tvShow!!.text = epg?.title
+//        epgRepo.getByChannelId(channelId!!).observe(viewLifecycleOwner) { epg ->
+//            tvShow!!.text = epg?.title
+//        }
+
+        epgRepo.epgsFlow.combine(channelRepo.currentChannelId) { epgs, channelId ->
+            return@combine epgs.firstOrNull<Epg> { it.channelId == channelId }
+        }.asLiveData(context = Dispatchers.IO).observe(viewLifecycleOwner) {
+            tvShow!!.text = it?.title
         }
+
         val newTimeBar: SeekBar? = playerView?.findViewById(R.id.newProgress)
 
         newTimeBar?.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
@@ -97,7 +145,7 @@ class VideoFragment : Fragment() {
         })
 
         settingsBtn?.setOnClickListener {
-            val qualities: ArrayList<Quality> = ArrayList<Quality>()
+            val qualities: ArrayList<Quality> = ArrayList()
             if (player?.currentTracks!!.groups.size > 0) {
                 for (i in 0 until player?.currentTracks!!.groups[0].length) {
                     val height: Int = player?.currentTracks!!.groups[0].mediaTrackGroup
@@ -151,11 +199,11 @@ class VideoFragment : Fragment() {
         fullScreenBtn?.setOnClickListener {
             if (isFullScreen) {
                 requireActivity().requestedOrientation =
-                    ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+                    ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT
                 isFullScreen = false
             } else {
                 requireActivity().requestedOrientation =
-                    ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+                    ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
                 isFullScreen = true
             }
         }
@@ -163,46 +211,8 @@ class VideoFragment : Fragment() {
         backBtn?.setOnClickListener {
             onDestroyView()
             onDestroy()
-            requireActivity().requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+            requireActivity().requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT
         }
-
-        player?.addListener(object : Player.Listener {
-            override fun onPlaybackStateChanged(state: Int) {
-                if (state == Player.STATE_READY) {
-                    newTimeBar?.max = player?.duration as Int
-                    runnable = Runnable {
-                        newTimeBar?.progress = player?.currentPosition as Int
-                        handler.postDelayed(runnable!!, 1000)
-                    }
-                    handler.postDelayed(runnable!!, 0)
-                    progressBar?.visibility = View.GONE
-                } else if (state == Player.STATE_BUFFERING) {
-                    progressBar?.visibility = View.VISIBLE
-                } else {
-                    progressBar?.visibility = View.GONE
-                }
-            }
-        })
-
-        val ppBtn: ImageView? = playerView?.findViewById(R.id.exo_play)
-        ppBtn?.setOnClickListener { view: View? ->
-            if (player?.isPlaying == true) {
-                player?.pause()
-                player?.playWhenReady = false
-                ppBtn?.setImageResource(R.drawable.ic_arrow_play)
-            } else {
-                player?.play()
-                player?.playWhenReady = false
-                ppBtn?.setImageResource(R.drawable.ic_pause)
-            }
-        }
-
-        //getActivity().getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-        //        WindowManager.LayoutParams.FLAG_FULLSCREEN);
-//        Uri videoUrl = Uri.parse("https://mhd.iptv2022.com/p/5tzYJRkx_8x4VIGmmym0KA,1689751804/streaming/1kanalott/324/1/index.m3u8");
-//        Uri videoUrl = Uri.parse("http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4");
-//        Uri videoUrl = Uri.parse("https://alanza.iptv2022.com/Miami_TV/index.m3u8");
-//        Uri videoUrl = Uri.parse("https://alanza.iptv2022.com/LawCrime-eng/index.m3u8");
 
         val trackSelector = DefaultTrackSelector(requireContext())
         trackSelector.setParameters(trackSelector.buildUponParameters().setMaxVideoSizeSd())
@@ -214,7 +224,87 @@ class VideoFragment : Fragment() {
         playerView?.player = player
         playerView?.keepScreenOn = true
 
+        player?.addListener(object : Player.Listener {
+            override fun onPlaybackStateChanged(state: Int) {
+                when (state) {
+                    Player.STATE_READY -> {
+                        newTimeBar?.max = player?.duration!!.toInt()
+                        runnable = Runnable {
+                            newTimeBar?.progress = player?.currentPosition!!.toInt()
+                            handler.postDelayed(runnable!!, 1000)
+                        }
+                        handler.postDelayed(runnable!!, 0)
+                        progressBar?.visibility = View.GONE
+                    }
+                    Player.STATE_BUFFERING -> {
+                        progressBar?.visibility = View.VISIBLE
+                    }
+                    else -> {
+                        progressBar?.visibility = View.GONE
+                    }
+                }
+            }
+        })
+
+        val ppBtn: ImageView? = playerView?.findViewById(R.id.exo_play)
+        ppBtn?.setOnClickListener {
+            if (player?.isPlaying == true) {
+                player?.pause()
+                player?.playWhenReady = false
+                ppBtn?.setImageResource(R.drawable.ic_arrow_play)
+            } else {
+                player?.play()
+                player?.playWhenReady = true
+                ppBtn?.setImageResource(R.drawable.ic_pause)
+            }
+        }
+
+//        Uri videoUrl = Uri.parse("https://mhd.iptv2022.com/p/5tzYJRkx_8x4VIGmmym0KA,1689751804/streaming/1kanalott/324/1/index.m3u8");
+//        Uri videoUrl = Uri.parse("http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4");
+//        Uri videoUrl = Uri.parse("https://alanza.iptv2022.com/Miami_TV/index.m3u8");
+//        Uri videoUrl = Uri.parse("https://alanza.iptv2022.com/LawCrime-eng/index.m3u8");
+
         return fragment
+    }
+
+    private fun startChannel(channelId: Int) {
+        player?.stop()
+//        player?.playWhenReady = false
+//        player?.release()
+        player?.clearMediaItems()
+
+        val channel: Channel? = channels.firstOrNull {it.id == channelId}
+        val videoUrl = Uri.parse(channel?.stream)
+        Glide.with(requireContext())
+            .load(channel?.image)
+            .into(iconChannel)
+        channelName.text = channel?.name
+        val mediaItem = MediaItem.fromUri(videoUrl)
+        val httpDataSourceFactory: DefaultHttpDataSource.Factory =
+            DefaultHttpDataSource.Factory()
+                .setConnectTimeoutMs(DefaultHttpDataSource.DEFAULT_CONNECT_TIMEOUT_MILLIS)
+                .setReadTimeoutMs(DefaultHttpDataSource.DEFAULT_READ_TIMEOUT_MILLIS)
+                .setAllowCrossProtocolRedirects(true)
+        val requestProperties = HashMap<String, String>()
+        requestProperties["X-LHD-Agent"] =
+            "{\"platform\":\"android\",\"app\":\"stream.tv.online\",\"version_name\":\"3.1.3\",\"version_code\":\"400\",\"sdk\":\"29\",\"name\":\"Huawei+Wgr-w19\",\"device_id\":\"a4ea673248fe0bcc\",\"is_huawei\":\"0\"}"
+        httpDataSourceFactory.setDefaultRequestProperties(requestProperties)
+        val mediaSource: MediaSource =
+            HlsMediaSource.Factory(httpDataSourceFactory).createMediaSource(mediaItem)
+        player?.setMediaSource(mediaSource)
+        //        player.setMediaItem(mediaItem);
+        player?.prepare()
+        player?.playWhenReady = true
+        val result = adapter.setChannels(channels)
+        result.dispatchUpdatesTo(adapter)
+    }
+
+    private fun updateChannel(newChannelId: Int) {
+        channelId = newChannelId
+
+        startChannel(newChannelId)
+
+        adapter.setSelected(channels.indexOfFirst { it.id == newChannelId })
     }
 
     override fun onDestroyView() {
@@ -238,6 +328,8 @@ class VideoFragment : Fragment() {
         super.onDestroy()
         player?.release()
     }
+
+
 
     companion object {
         const val BUNDLE_ID_KEY = "BUNDLE_ID_KEY"

@@ -2,17 +2,15 @@ package com.example.new_practice.repos
 
 import android.content.Context
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.map
 import com.example.new_practice.storage.AppDatabase
 import com.example.new_practice.storage.RoomInstance
+import com.example.new_practice.storage.entities.Channel
 import com.example.new_practice.storage.entities.Epg
-import com.google.common.reflect.TypeToken
-import com.google.gson.Gson
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
-import java.lang.Exception
 
 class EpgRepo private constructor(context: Context) {
 
@@ -31,6 +29,8 @@ class EpgRepo private constructor(context: Context) {
             appDatabase.epgsDao().saveEpgs(epgs)
         }
     }
+
+    val epgsFlow: Flow<List<Epg>> = appDatabase.epgsDao().getEpgsFlow()
 
     val epgs: LiveData<List<Epg>>
         get() {
@@ -57,7 +57,7 @@ class EpgRepo private constructor(context: Context) {
     }
 
     companion object {
-        private const val KEY_EPG = "epg"
+        //private const val KEY_EPG = "epg"
         private var epgRepo: EpgRepo? = null
         fun getInstance(context: Context?): EpgRepo {
             if (epgRepo == null) {

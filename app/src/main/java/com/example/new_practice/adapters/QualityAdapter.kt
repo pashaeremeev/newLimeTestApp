@@ -3,7 +3,6 @@ package com.example.new_practice.adapters
 import android.content.Context
 import android.graphics.Color
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.new_practice.ClickQualityListener
@@ -36,12 +35,12 @@ class QualityAdapter(
 
     override fun onBindViewHolder(holder: QualityHolder, position: Int) {
         val item: Quality = qualities[position]
-        if (item.height === -1) {
+        if (item.height == -1) {
             holder.qualityText.text = "AUTO"
         } else {
             holder.qualityText.text = item.height.toString() + "p"
         }
-        if (item.isCurrent !== 0) {
+        if (item.isCurrent != 0) {
             holder.itemView.setBackgroundColor(Color.parseColor("#0077FF"))
             holder.qualityText.setTextColor(Color.WHITE)
         }

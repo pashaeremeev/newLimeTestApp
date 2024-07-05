@@ -1,9 +1,7 @@
 package com.example.new_practice.diffUtils
 
 import androidx.recyclerview.widget.DiffUtil
-import com.example.new_practice.repos.EpgRepo
 import com.example.new_practice.storage.entities.Channel
-import com.example.new_practice.storage.entities.Epg
 
 class ChannelDiffUtilCallback(
     private val oldChannels: List<Channel>,

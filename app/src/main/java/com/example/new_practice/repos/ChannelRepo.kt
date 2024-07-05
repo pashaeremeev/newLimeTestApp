@@ -17,6 +17,7 @@ class ChannelRepo(context: Context) {
     private val appDatabase: AppDatabase
 
     val searchFlow: MutableStateFlow<String> = MutableStateFlow("")
+    val currentChannelId: MutableStateFlow<Int?> = MutableStateFlow(null)
 
     fun setSearchFilter(text: String) {
         searchFlow.value = text
@@ -60,7 +61,7 @@ class ChannelRepo(context: Context) {
     }
 
     companion object {
-        private const val KEY_CHANNEL = "channel"
+        //private const val KEY_CHANNEL = "channel"
         private var channelRepo: ChannelRepo? = null
         fun getInstance(context: Context?): ChannelRepo {
             if (channelRepo == null) {

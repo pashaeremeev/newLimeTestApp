@@ -12,11 +12,22 @@ class Channel(
     val stream: String
 ) {
 
-    override fun equals(obj: Any?): Boolean {
-        return super.equals(obj)
-    }
-
     override fun hashCode(): Int {
         return Objects.hash(id, name, image, stream)
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as Channel
+
+        if (id != other.id) return false
+        if (name != other.name) return false
+        if (image != other.image) return false
+        if (isFavorite != other.isFavorite) return false
+        if (stream != other.stream) return false
+
+        return true
     }
 }

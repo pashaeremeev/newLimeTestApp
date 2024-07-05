@@ -3,6 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:background="#80000000">
 
 
@@ -58,28 +59,40 @@
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_centerInParent="true">
+        android:layout_centerInParent="true"
+        android:orientation="horizontal">
 
         <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:id="@+id/toBackChannel"
+            android:layout_width="45dp"
+            android:layout_height="match_parent"
+            android:src="@drawable/arrow_left" />
+
+        <ImageView
             android:id="@+id/exo_rew"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_marginEnd="16dp"
-            android:src="@drawable/ic_left_replay"/>
+            android:src="@drawable/ic_left_replay" />
 
         <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
             android:id="@+id/exo_play"
-            android:src="@drawable/ic_pause"/>
-
-        <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:src="@drawable/ic_pause" />
+
+        <ImageView
             android:id="@+id/exo_ffwd"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
-            android:src="@drawable/ic_right_replay"/>
+            android:src="@drawable/ic_right_replay" />
+
+        <ImageView
+            android:id="@+id/toFwdChannel"
+            android:layout_width="45dp"
+            android:layout_height="match_parent"
+            android:src="@drawable/arrow_fwd" />
     </LinearLayout>
 
     <LinearLayout
@@ -106,6 +119,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textColor="#CBCDC8"
+                android:text="/"
                 android:layout_marginStart="4dp"
                 android:layout_marginEnd="4dp" />
 
@@ -128,6 +142,7 @@
                 android:id="@+id/fullscreenBtn"
                 android:src="@drawable/ic_baseline_fullscreen"/>
 
+
         </LinearLayout>
 
         <androidx.media3.ui.DefaultTimeBar
@@ -140,15 +155,23 @@
             app:unplayed_color="#45424E"
             android:visibility="gone"/>
 
-
         <SeekBar
             android:id="@+id/newProgress"
             android:layout_width="match_parent"
             android:layout_height="2dp"
             android:progressDrawable="@drawable/played_track"
             android:secondaryProgress="@color/black"
-            android:thumb="@android:color/transparent">
-        </SeekBar>
+            android:thumb="@android:color/transparent"/>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/catalogView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layoutManager="LinearLayoutManager"
+            android:orientation="horizontal"
+            tools:listitem="@layout/channel_icon_item"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="10dp"/>
 
     </LinearLayout>
 

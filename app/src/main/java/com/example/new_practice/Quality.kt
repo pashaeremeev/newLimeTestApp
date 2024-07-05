@@ -1,7 +1,6 @@
 package com.example.new_practice
 
 import android.os.Parcel
-import android.os.Parcelable
 import java.io.Serializable
 
 class Quality : Serializable {
@@ -10,7 +9,7 @@ class Quality : Serializable {
     var index: Int
     var isCurrent = 0
 
-    protected constructor(inValue: Parcel) {
+    constructor(inValue: Parcel) {
         height = inValue.readInt()
         width = inValue.readInt()
         index = inValue.readInt()

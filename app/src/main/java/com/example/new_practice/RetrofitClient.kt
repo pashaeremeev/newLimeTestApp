@@ -4,15 +4,12 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 class RetrofitClient private constructor() {
-    private val BASE_URL = "https://api.jsonserve.com/"
-    private val retrofit: Retrofit
 
-    init {
-        retrofit = Retrofit.Builder()
-            .baseUrl(BASE_URL)
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-    }
+    private val baseUrl = "https://api.npoint.io/"
+    private val retrofit: Retrofit = Retrofit.Builder()
+        .baseUrl(baseUrl)
+        .addConverterFactory(GsonConverterFactory.create())
+        .build()
 
     val api: InterfaceAPI
         get() = retrofit.create(InterfaceAPI::class.java)

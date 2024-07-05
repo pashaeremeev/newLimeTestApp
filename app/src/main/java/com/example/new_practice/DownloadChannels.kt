@@ -22,20 +22,19 @@ class DownloadChannels {
             epgRepo: EpgRepo,
             callback: Function1<Boolean?, Void?>
         ) {
-            var scheduler: ScheduledExecutorService? = null
-            scheduler = Executors.newSingleThreadScheduledExecutor()
-            scheduler!!.scheduleAtFixedRate(Runnable {
+            val scheduler: ScheduledExecutorService? = Executors.newSingleThreadScheduledExecutor()
+            scheduler?.scheduleAtFixedRate({
                 RetrofitClient.instance?.api?.data
                     ?.enqueue(object : Callback<ChannelJsonModel?> {
                         override fun onResponse(
-                            call: Call<ChannelJsonModel?>?,
+                            call: Call<ChannelJsonModel?>,
                             response: Response<ChannelJsonModel?>
                         ) {
                             if (response.isSuccessful) {
                                 val channelJsons: ArrayList<ChannelJson> =
                                     response.body()!!.channelJsons
-                                val channels: ArrayList<Channel> = ArrayList<Channel>()
-                                val epgs: ArrayList<Epg> = ArrayList<Epg>()
+                                val channels: ArrayList<Channel> = ArrayList()
+                                val epgs: ArrayList<Epg> = ArrayList()
                                 for (i in channelJsons.indices) {
                                     val channelJson: ChannelJson = channelJsons[i]
                                     val channel: Channel = channelJson.createChannel()
@@ -61,7 +60,7 @@ class DownloadChannels {
                             callback.invoke(true)
                         }
 
-                        override fun onFailure(call: Call<ChannelJsonModel?>?, t: Throwable?) {
+                        override fun onFailure(call: Call<ChannelJsonModel?>, t: Throwable) {
                             callback.invoke(false)
                         }
                     })

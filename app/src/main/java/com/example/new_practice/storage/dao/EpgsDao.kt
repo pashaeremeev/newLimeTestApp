@@ -6,6 +6,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.example.new_practice.storage.entities.Epg
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface EpgsDao {
@@ -23,5 +24,8 @@ interface EpgsDao {
 
     @Query("SELECT * FROM epgs WHERE channelId = :channelId")
     fun getEpgByChannelIdNow(channelId: Int): List<Epg>
+
+    @Query("SELECT * FROM epgs")
+    fun getEpgsFlow(): Flow<List<Epg>>
 
 }
