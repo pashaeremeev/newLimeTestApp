@@ -1,7 +1,9 @@
 package com.example.new_practice.json
 
-import com.example.new_practice.storage.entities.Channel
-import com.example.new_practice.storage.entities.Epg
+import com.example.new_practice.data.storage.entities.Channel
+import com.example.new_practice.data.storage.entities.Epg
+import com.example.new_practice.domain.models.ChannelModel
+import com.example.new_practice.domain.models.EpgModel
 import com.example.practice.EpgJson
 
 class ChannelJson(
@@ -27,8 +29,8 @@ class ChannelJson(
         this.epg = epg
     }
 
-    fun createChannel(): Channel {
-        return Channel(
+    fun createChannel(): ChannelModel {
+        return ChannelModel(
             id,
             name,
             image,
@@ -37,9 +39,9 @@ class ChannelJson(
         )
     }
 
-    fun createEpg(): Epg {
+    fun createEpg(): EpgModel {
         val epgJson: EpgJson = epg[0]
-        return Epg(
+        return EpgModel(
             epgJson.id,
             id,
             epgJson.timeStart,
