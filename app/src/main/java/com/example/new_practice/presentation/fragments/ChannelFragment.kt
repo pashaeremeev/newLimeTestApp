@@ -19,6 +19,7 @@ import com.example.new_practice.data.repos.EpgRepositoryImpl
 import com.example.new_practice.domain.models.ChannelModel
 import com.example.new_practice.domain.usecase.ChangeFavoriteChannelUseCase
 import com.example.new_practice.domain.usecase.GetChannelsInfoUseCase
+import com.example.new_practice.domain.usecase.GetEpgsUseCase
 import com.example.new_practice.domain.usecase.SearchChannelsUseCase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.combine
@@ -31,6 +32,7 @@ class ChannelFragment(private val position: Int): Fragment() {
     private lateinit var getChannelsInfoUseCase: GetChannelsInfoUseCase
     private lateinit var searchChannelsUseCase: SearchChannelsUseCase
     private lateinit var changeFavoriteChannelUseCase: ChangeFavoriteChannelUseCase
+    private lateinit var getEpgsUseCase: GetEpgsUseCase
     private var adapter: ChannelAdapter? = null
 
     override fun onCreateView(
@@ -49,6 +51,7 @@ class ChannelFragment(private val position: Int): Fragment() {
         getChannelsInfoUseCase = GetChannelsInfoUseCase(channelRepository = channelRepo)
         searchChannelsUseCase = SearchChannelsUseCase(channelRepository = channelRepo)
         changeFavoriteChannelUseCase = ChangeFavoriteChannelUseCase(channelRepository = channelRepo)
+        getEpgsUseCase = GetEpgsUseCase(epgRepository = epgRepo)
 
 
         val recyclerView = view.findViewById<RecyclerView>(R.id.recyclerView)
@@ -56,7 +59,8 @@ class ChannelFragment(private val position: Int): Fragment() {
         recyclerView.adapter = adapter
 
         recyclerView.layoutManager = LinearLayoutManager(view.context)
-        epgRepo.epgs.observe(viewLifecycleOwner) {
+
+        getEpgsUseCase.launch().asLiveData(context = Dispatchers.IO).observe(viewLifecycleOwner) {
             if (adapter == null) {
                 adapter = ChannelAdapter(
                     view.context,
@@ -79,6 +83,30 @@ class ChannelFragment(private val position: Int): Fragment() {
             }
 
         }
+
+//        epgRepo.epgs.observe(viewLifecycleOwner) {
+//            if (adapter == null) {
+//                adapter = ChannelAdapter(
+//                    view.context,
+//                    it,
+//                    object : ClickChannelListener {
+//                        override fun invoke(channel: ChannelModel?) {
+//                            clickOnChannelView(channel!!)
+//                        }
+//                    },
+//                    object : ClickChannelListener {
+//                        override fun invoke(channel: ChannelModel?) {
+//                            clickOnFavoriteView(channel!!)
+//                        }
+//                    }
+//                )
+//                recyclerView.adapter = adapter
+//            } else {
+//                val result = adapter?.setEpgs(it)
+//                result?.dispatchUpdatesTo(adapter!!)
+//            }
+//
+//        }
         // Получаем каналы из БД и текст из поля поиска
         getChannelsInfoUseCase.launch()
             .combine(searchChannelsUseCase.launch(channelRepo.searchFlow)) {

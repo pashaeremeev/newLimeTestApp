@@ -11,20 +11,21 @@ import com.example.new_practice.presentation.ClickChannelListener
 import com.example.new_practice.data.storage.entities.Epg
 import com.example.new_practice.R
 import com.example.new_practice.domain.models.ChannelModel
+import com.example.new_practice.domain.models.EpgModel
 import com.example.new_practice.presentation.diffUtils.ChannelDiffUtilCallback
 import com.example.new_practice.presentation.diffUtils.EpgDiffUtilCallback
 import com.example.new_practice.presentation.viewHolders.ViewChannelHolder
 
 class ChannelAdapter(
     context: Context,
-    epgs: List<Epg>,
+    epgs: List<EpgModel>,
     clickListener: ClickChannelListener,
     favClickListener: ClickChannelListener
 ) : RecyclerView.Adapter<ViewChannelHolder?>() {
     private val clickListener: ClickChannelListener
     private val context: Context
     private var channels: List<ChannelModel> = listOf()
-    private var epgs: List<Epg> = listOf()
+    private var epgs: List<EpgModel> = listOf()
     private val favClickListener: ClickChannelListener
 
     init {
@@ -40,7 +41,7 @@ class ChannelAdapter(
         return DiffUtil.calculateDiff(diffUtil)
     }
 
-    fun setEpgs(newEpgs: List<Epg>): DiffUtil.DiffResult {
+    fun setEpgs(newEpgs: List<EpgModel>): DiffUtil.DiffResult {
         val diffUtil = EpgDiffUtilCallback(epgs, newEpgs)
         this.epgs = newEpgs
         return DiffUtil.calculateDiff(diffUtil)
@@ -50,7 +51,7 @@ class ChannelAdapter(
         return this.channels
     }
 
-    fun getEpgs(): List<Epg> {
+    fun getEpgs(): List<EpgModel> {
         return this.epgs
     }
 
@@ -63,7 +64,7 @@ class ChannelAdapter(
 
     override fun onBindViewHolder(holder: ViewChannelHolder, position: Int) {
         val channelItem: ChannelModel = channels[position]
-        val epgItem: Epg? = epgs.firstOrNull { it.channelId == channelItem.id }
+        val epgItem: EpgModel? = epgs.firstOrNull { it.channelId == channelItem.id }
         val urlImage = Uri.parse(channelItem.image)
         holder.getNameChannel().text = channelItem.name
         holder.getTvShow().text = epgItem?.title
