@@ -1,11 +1,11 @@
-package com.example.new_practice.presentation
+package com.example.new_practice.app
 
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.Lifecycle
 import androidx.media3.common.util.UnstableApi
 import androidx.viewpager2.adapter.FragmentStateAdapter
-import com.example.new_practice.presentation.fragments.ChannelFragment
+import com.example.new_practice.app.fragments.ChannelFragment
 
 class PageAdapter(fragmentManager: FragmentManager?, lifecycle: Lifecycle?) :
     FragmentStateAdapter(fragmentManager!!, lifecycle!!) {

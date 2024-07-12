@@ -1,4 +1,4 @@
-package com.example.new_practice.presentation
+package com.example.new_practice.app
 
 import com.example.new_practice.json.ChannelJsonModel
 import retrofit2.Call

@@ -1,4 +1,4 @@
-package com.example.new_practice.presentation
+package com.example.new_practice.app
 
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory

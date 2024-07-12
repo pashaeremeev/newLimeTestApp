@@ -1,4 +1,4 @@
-package com.example.new_practice.presentation.fragments
+package com.example.new_practice.app.fragments
 
 import android.content.DialogInterface
 import android.os.Bundle
@@ -11,10 +11,10 @@ import androidx.fragment.app.DialogFragment
 import androidx.media3.common.util.UnstableApi
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.new_practice.presentation.ClickQualityListener
-import com.example.new_practice.presentation.Quality
+import com.example.new_practice.app.ClickQualityListener
+import com.example.new_practice.app.Quality
 import com.example.new_practice.R
-import com.example.new_practice.presentation.adapters.QualityAdapter
+import com.example.new_practice.app.adapters.QualityAdapter
 
 @UnstableApi
 class ItemQualityFragment : DialogFragment() {

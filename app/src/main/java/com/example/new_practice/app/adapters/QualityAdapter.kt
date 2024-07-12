@@ -1,14 +1,14 @@
-package com.example.new_practice.presentation.adapters
+package com.example.new_practice.app.adapters
 
 import android.content.Context
 import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.example.new_practice.presentation.ClickQualityListener
-import com.example.new_practice.presentation.Quality
+import com.example.new_practice.app.ClickQualityListener
+import com.example.new_practice.app.Quality
 import com.example.new_practice.R
-import com.example.new_practice.presentation.viewHolders.QualityHolder
+import com.example.new_practice.app.viewHolders.QualityHolder
 
 class QualityAdapter(
     context: Context,

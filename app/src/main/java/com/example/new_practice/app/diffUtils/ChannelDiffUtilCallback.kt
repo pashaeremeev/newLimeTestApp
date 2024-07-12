@@ -1,4 +1,4 @@
-package com.example.new_practice.presentation.diffUtils
+package com.example.new_practice.app.diffUtils
 
 import androidx.recyclerview.widget.DiffUtil
 import com.example.new_practice.data.storage.entities.Channel

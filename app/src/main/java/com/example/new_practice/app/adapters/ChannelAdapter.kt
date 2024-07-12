@@ -1,4 +1,4 @@
-package com.example.new_practice.presentation.adapters
+package com.example.new_practice.app.adapters
 
 import android.content.Context
 import android.net.Uri
@@ -7,14 +7,13 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import com.example.new_practice.presentation.ClickChannelListener
-import com.example.new_practice.data.storage.entities.Epg
+import com.example.new_practice.app.ClickChannelListener
 import com.example.new_practice.R
 import com.example.new_practice.domain.models.ChannelModel
 import com.example.new_practice.domain.models.EpgModel
-import com.example.new_practice.presentation.diffUtils.ChannelDiffUtilCallback
-import com.example.new_practice.presentation.diffUtils.EpgDiffUtilCallback
-import com.example.new_practice.presentation.viewHolders.ViewChannelHolder
+import com.example.new_practice.app.diffUtils.ChannelDiffUtilCallback
+import com.example.new_practice.app.diffUtils.EpgDiffUtilCallback
+import com.example.new_practice.app.viewHolders.ViewChannelHolder
 
 class ChannelAdapter(
     context: Context,

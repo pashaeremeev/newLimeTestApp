@@ -7,6 +7,6 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     app:layoutManager="LinearLayoutManager"
-    tools:context=".presentation.MainActivity"
+    tools:context=".app.MainActivity"
     tools:listitem="@layout/channel_field"
     android:paddingBottom="10dp"/>

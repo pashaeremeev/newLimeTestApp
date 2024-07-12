@@ -1,12 +1,9 @@
-package com.example.new_practice.presentation
+package com.example.new_practice.app
 
-import android.app.PictureInPictureParams
-import android.os.Build
 import android.os.Bundle
-import android.util.Rational
-import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
+import androidx.lifecycle.ViewModelProvider
 import androidx.viewpager2.widget.ViewPager2
 import com.example.new_practice.R
 import com.example.new_practice.data.repos.ChannelRepositoryImpl
@@ -20,10 +17,13 @@ class MainActivity : AppCompatActivity() {
     private val tabNames = arrayOf("Все", "Избранные")
     private lateinit var channelRepo: ChannelRepositoryImpl
     private lateinit var epgRepo: EpgRepositoryImpl
+    private lateinit var vm: ChannelViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        vm = ViewModelProvider(this, AppViewModelFactory(this))[ChannelViewModel::class.java]
 
         val tabLayout = findViewById<TabLayout>(R.id.tabLayout)
         val viewPager = findViewById<ViewPager2>(R.id.pager)

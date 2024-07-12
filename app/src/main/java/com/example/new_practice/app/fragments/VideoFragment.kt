@@ -1,4 +1,4 @@
-package com.example.new_practice.presentation.fragments
+package com.example.new_practice.app.fragments
 
 import android.app.PictureInPictureParams
 import android.content.pm.ActivityInfo
@@ -20,7 +20,7 @@ import android.widget.SeekBar
 import android.widget.SeekBar.OnSeekBarChangeListener
 import android.widget.TextView
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.asLiveData
+import androidx.lifecycle.ViewModelProvider
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
 import androidx.media3.common.TrackSelectionOverride
@@ -36,18 +36,14 @@ import androidx.media3.exoplayer.trackselection.DefaultTrackSelector
 import androidx.media3.ui.PlayerView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import com.example.new_practice.presentation.ClickIconListener
-import com.example.new_practice.presentation.Quality
+import com.example.new_practice.app.ClickIconListener
+import com.example.new_practice.app.Quality
 import com.example.new_practice.R
-import com.example.new_practice.presentation.adapters.ChannelIconAdapter
+import com.example.new_practice.app.AppViewModelFactory
+import com.example.new_practice.app.VideoViewModel
+import com.example.new_practice.app.adapters.ChannelIconAdapter
 import com.example.new_practice.data.repos.ChannelRepositoryImpl
-import com.example.new_practice.data.repos.EpgRepositoryImpl
 import com.example.new_practice.domain.models.ChannelModel
-import com.example.new_practice.domain.models.EpgModel
-import com.example.new_practice.domain.usecase.GetChannelsInfoUseCase
-import com.example.new_practice.domain.usecase.GetEpgByChannelIdUseCase
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.combine
 
 
 @UnstableApi
@@ -70,10 +66,8 @@ class VideoFragment : Fragment() {
     private lateinit var channelTop: LinearLayout
     private lateinit var playerInfo: LinearLayout
     private lateinit var playerControl: LinearLayout
-    private lateinit var getChannelsInfoUseCase: GetChannelsInfoUseCase
-    private lateinit var getEpgByChannelIdUseCase: GetEpgByChannelIdUseCase
     private lateinit var channelRepo: ChannelRepositoryImpl
-    private lateinit var epgRepo: EpgRepositoryImpl
+    private lateinit var vm: VideoViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -85,11 +79,11 @@ class VideoFragment : Fragment() {
         container!!.visibility = VISIBLE
         playerView = fragment.findViewById(R.id.exoplayerView)
         progressBar = fragment.findViewById(R.id.progressBar)
+        vm = ViewModelProvider(
+            requireActivity(),
+            AppViewModelFactory(requireContext())
+        )[VideoViewModel::class.java]
         channelRepo = ChannelRepositoryImpl.getInstance(context)
-        epgRepo = EpgRepositoryImpl.getInstance(context)
-        getChannelsInfoUseCase = GetChannelsInfoUseCase(channelRepository = channelRepo)
-        getEpgByChannelIdUseCase = GetEpgByChannelIdUseCase(epgRepository = epgRepo)
-        val epgRepo = EpgRepositoryImpl.getInstance(context)
         //channelId = requireArguments().getInt(BUNDLE_ID_KEY)
         channelRepo.currentChannelId.value = requireArguments().getInt(BUNDLE_ID_KEY)
 
@@ -138,35 +132,17 @@ class VideoFragment : Fragment() {
 
         catalog?.adapter = adapter
 
-        getChannelsInfoUseCase.launch().asLiveData(context = Dispatchers.IO).observe(viewLifecycleOwner) { catalog ->
+        vm.getCatalogOfChannel().observe(viewLifecycleOwner) { catalog ->
             this.channels = catalog
             val channel: ChannelModel? = channels.firstOrNull { it.id == channelId }
             channelId = channel?.id
             //updateChannel(channelId!!)
             updateChannel(channelRepo.currentChannelId.value!!)
         }
-//        channelRepo.channels.observe(viewLifecycleOwner) { channels ->
-//            this.channels = channels
-//            val channel: ChannelModel? = channels.firstOrNull { it.id == channelId }
-//            channelId = channel?.id
-//            //updateChannel(channelId!!)
-//            updateChannel(channelRepo.currentChannelId.value!!)
-//        }
 
-//        epgRepo.getByChannelId(channelId!!).observe(viewLifecycleOwner) { epg ->
-//            tvShow!!.text = epg?.title
-//        }
-
-        getEpgByChannelIdUseCase.launch(channelRepo.currentChannelId)
-            .asLiveData(context = Dispatchers.IO).observe(viewLifecycleOwner) {
-                tvShow!!.text = it?.title
-            }
-
-//        epgRepo.epgsFlow.combine(channelRepo.currentChannelId) { epgs, channelId ->
-//            return@combine epgs.firstOrNull<EpgModel> { it.channelId == channelId }
-//        }.asLiveData(context = Dispatchers.IO).observe(viewLifecycleOwner) {
-//            tvShow!!.text = it?.title
-//        }
+        vm.getEpgForChannel(channelRepo.currentChannelId).observe(viewLifecycleOwner) {
+            tvShow!!.text = it?.title
+        }
 
         val newTimeBar: SeekBar? = playerView?.findViewById(R.id.newProgress)
 

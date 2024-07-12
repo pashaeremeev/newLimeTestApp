@@ -8,7 +8,7 @@ import com.example.new_practice.data.storage.entities.Channel
 import com.example.new_practice.data.storage.DbImpl.AppDatabase
 import com.example.new_practice.data.storage.DbImpl.RoomInstance
 import com.example.new_practice.domain.models.ChannelModel
-import com.example.new_practice.presentation.DownloadChannels
+import com.example.new_practice.app.DownloadChannels
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow

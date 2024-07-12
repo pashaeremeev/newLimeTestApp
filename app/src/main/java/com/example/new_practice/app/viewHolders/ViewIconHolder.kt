@@ -1,4 +1,4 @@
-package com.example.new_practice.presentation.viewHolders
+package com.example.new_practice.app.viewHolders
 
 import android.view.View
 import android.widget.ImageView
