@@ -1,4 +1,4 @@
-package com.example.new_practice.app.fragments
+package com.example.new_practice.app.presentation.fragments
 
 import android.content.DialogInterface
 import android.os.Bundle

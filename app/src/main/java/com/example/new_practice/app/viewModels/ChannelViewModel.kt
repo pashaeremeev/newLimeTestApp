@@ -1,4 +1,4 @@
-package com.example.new_practice.app
+package com.example.new_practice.app.viewModels
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
@@ -9,20 +9,25 @@ import com.example.new_practice.domain.usecase.ChangeFavoriteChannelUseCase
 import com.example.new_practice.domain.usecase.GetChannelsInfoUseCase
 import com.example.new_practice.domain.usecase.GetEpgsUseCase
 import com.example.new_practice.domain.usecase.SearchChannelsUseCase
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
+import javax.inject.Inject
 
-class ChannelViewModel(
+@HiltViewModel
+class ChannelViewModel @Inject constructor(
     private val changeFavoriteChannelUseCase: ChangeFavoriteChannelUseCase,
     private val getChannelsInfoUseCase: GetChannelsInfoUseCase,
     private val getEpgsUseCase: GetEpgsUseCase,
     private val searchChannelsUseCase: SearchChannelsUseCase
 ): ViewModel() {
 
-    fun getChannels(searchParam: Flow<String>): LiveData<List<ChannelModel>> {
+    val searchFlow: MutableStateFlow<String> = MutableStateFlow("")
+
+    fun getChannels(): LiveData<List<ChannelModel>> {
         return getChannelsInfoUseCase.launch()
-            .combine(searchChannelsUseCase.launch(searchParam)) {
+            .combine(searchChannelsUseCase.launch(searchFlow)) {
                     channels, searchChannels ->
                 var filteredChannelsList: ArrayList<ChannelModel> = arrayListOf()
                 if (searchChannels.isNotEmpty()) {

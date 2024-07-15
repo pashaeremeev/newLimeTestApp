@@ -1,4 +1,4 @@
-package com.example.new_practice.json
+package com.example.new_practice.app.json
 
 import com.example.new_practice.data.storage.entities.Channel
 import com.example.new_practice.data.storage.entities.Epg

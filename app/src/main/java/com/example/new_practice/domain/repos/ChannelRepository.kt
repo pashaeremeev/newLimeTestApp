@@ -6,7 +6,7 @@ import kotlinx.coroutines.flow.Flow
 
 interface ChannelRepository {
 
-    fun setSearchFilter(text: String)
+    //fun setSearchFilter(text: String)
 
     fun saveChannels(channels: List<ChannelModel>)
 

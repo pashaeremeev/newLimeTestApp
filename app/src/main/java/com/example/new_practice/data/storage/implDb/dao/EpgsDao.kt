@@ -1,4 +1,4 @@
-package com.example.new_practice.data.storage.DbImpl.dao
+package com.example.new_practice.data.storage.implDb.dao
 
 import androidx.lifecycle.LiveData
 import androidx.room.Dao
@@ -6,7 +6,6 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.example.new_practice.data.storage.entities.Epg
-import com.example.new_practice.domain.models.EpgModel
 import kotlinx.coroutines.flow.Flow
 
 @Dao

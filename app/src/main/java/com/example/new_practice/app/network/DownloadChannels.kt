@@ -1,8 +1,8 @@
-package com.example.new_practice.app
+package com.example.new_practice.app.network
 
 import android.util.Log
-import com.example.new_practice.json.ChannelJson
-import com.example.new_practice.json.ChannelJsonModel
+import com.example.new_practice.app.json.ChannelJson
+import com.example.new_practice.app.json.ChannelJsonModel
 import com.example.new_practice.domain.models.ChannelModel
 import com.example.new_practice.domain.models.EpgModel
 import com.example.new_practice.domain.repos.ChannelRepository

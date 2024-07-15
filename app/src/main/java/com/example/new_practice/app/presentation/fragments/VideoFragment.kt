@@ -1,4 +1,4 @@
-package com.example.new_practice.app.fragments
+package com.example.new_practice.app.presentation.fragments
 
 import android.app.PictureInPictureParams
 import android.content.pm.ActivityInfo
@@ -19,8 +19,9 @@ import android.widget.ProgressBar
 import android.widget.SeekBar
 import android.widget.SeekBar.OnSeekBarChangeListener
 import android.widget.TextView
+import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
+import androidx.fragment.app.viewModels
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
 import androidx.media3.common.TrackSelectionOverride
@@ -39,15 +40,14 @@ import com.bumptech.glide.Glide
 import com.example.new_practice.app.ClickIconListener
 import com.example.new_practice.app.Quality
 import com.example.new_practice.R
-import com.example.new_practice.app.AppViewModelFactory
-import com.example.new_practice.app.VideoViewModel
+import com.example.new_practice.app.viewModels.VideoViewModel
 import com.example.new_practice.app.adapters.ChannelIconAdapter
-import com.example.new_practice.data.repos.ChannelRepositoryImpl
 import com.example.new_practice.domain.models.ChannelModel
-
+import dagger.hilt.android.AndroidEntryPoint
 
 @UnstableApi
-class VideoFragment : Fragment() {
+@AndroidEntryPoint
+class VideoFragment: Fragment() {
     private var playerView: PlayerView? = null
     private var progressBar: ProgressBar? = null
     private var player: ExoPlayer? = null
@@ -66,8 +66,7 @@ class VideoFragment : Fragment() {
     private lateinit var channelTop: LinearLayout
     private lateinit var playerInfo: LinearLayout
     private lateinit var playerControl: LinearLayout
-    private lateinit var channelRepo: ChannelRepositoryImpl
-    private lateinit var vm: VideoViewModel
+    private val vm: VideoViewModel by viewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -79,18 +78,13 @@ class VideoFragment : Fragment() {
         container!!.visibility = VISIBLE
         playerView = fragment.findViewById(R.id.exoplayerView)
         progressBar = fragment.findViewById(R.id.progressBar)
-        vm = ViewModelProvider(
-            requireActivity(),
-            AppViewModelFactory(requireContext())
-        )[VideoViewModel::class.java]
-        channelRepo = ChannelRepositoryImpl.getInstance(context)
-        //channelId = requireArguments().getInt(BUNDLE_ID_KEY)
-        channelRepo.currentChannelId.value = requireArguments().getInt(BUNDLE_ID_KEY)
+
+        vm.currentChannelId.value = requireArguments().getInt(BUNDLE_ID_KEY)
 
         adapter = ChannelIconAdapter(requireContext(), object : ClickIconListener {
             override fun invoke(channel: ChannelModel) {
                 updateChannel(channel.id)
-                channelRepo.currentChannelId.value = channel.id
+                vm.currentChannelId.value = channel.id
             }
         })
 
@@ -111,7 +105,7 @@ class VideoFragment : Fragment() {
             val prevChannel: ChannelModel = channels[index]
             channelId = prevChannel.id
             updateChannel(prevChannel.id)
-            channelRepo.currentChannelId.value = prevChannel.id
+            vm.currentChannelId.value = prevChannel.id
         }
 
         toNextChannel.setOnClickListener {
@@ -122,7 +116,7 @@ class VideoFragment : Fragment() {
             val nextChannel: ChannelModel = channels[index]
             channelId = nextChannel.id
             updateChannel(nextChannel.id)
-            channelRepo.currentChannelId.value = nextChannel.id
+            vm.currentChannelId.value = nextChannel.id
         }
 
         val settingsBtn: ImageView? = playerView?.findViewById(R.id.settingsBtn)
@@ -137,10 +131,10 @@ class VideoFragment : Fragment() {
             val channel: ChannelModel? = channels.firstOrNull { it.id == channelId }
             channelId = channel?.id
             //updateChannel(channelId!!)
-            updateChannel(channelRepo.currentChannelId.value!!)
+            updateChannel(vm.currentChannelId.value!!)
         }
 
-        vm.getEpgForChannel(channelRepo.currentChannelId).observe(viewLifecycleOwner) {
+        vm.getEpgForChannel().observe(viewLifecycleOwner) {
             tvShow!!.text = it?.title
         }
 
@@ -363,13 +357,11 @@ class VideoFragment : Fragment() {
     }
 
     companion object {
-        const val BUNDLE_ID_KEY = "BUNDLE_ID_KEY"
-        fun getInstance(channelId: Int): VideoFragment {
-            val videoFragment = VideoFragment()
-            val bundle = Bundle()
-            bundle.putInt(BUNDLE_ID_KEY, channelId)
-            videoFragment.arguments = bundle
-            return videoFragment
+        private const val BUNDLE_ID_KEY = "BUNDLE_ID_KEY"
+        fun newInstance(channelId: Int) = VideoFragment().apply {
+            arguments = bundleOf(
+                BUNDLE_ID_KEY to channelId
+            )
         }
     }
 }

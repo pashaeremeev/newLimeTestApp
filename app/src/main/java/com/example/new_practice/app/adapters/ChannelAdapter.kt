@@ -13,7 +13,7 @@ import com.example.new_practice.domain.models.ChannelModel
 import com.example.new_practice.domain.models.EpgModel
 import com.example.new_practice.app.diffUtils.ChannelDiffUtilCallback
 import com.example.new_practice.app.diffUtils.EpgDiffUtilCallback
-import com.example.new_practice.app.viewHolders.ViewChannelHolder
+import com.example.new_practice.app.presentation.viewHolders.ViewChannelHolder
 
 class ChannelAdapter(
     context: Context,

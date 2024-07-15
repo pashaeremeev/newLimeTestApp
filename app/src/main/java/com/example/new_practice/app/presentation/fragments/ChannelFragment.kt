@@ -1,4 +1,4 @@
-package com.example.new_practice.app.fragments
+package com.example.new_practice.app.presentation.fragments
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -6,25 +6,25 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
+import androidx.fragment.app.viewModels
 import androidx.media3.common.util.UnstableApi
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.new_practice.app.ClickChannelListener
 import com.example.new_practice.R
-import com.example.new_practice.app.AppViewModelFactory
-import com.example.new_practice.app.ChannelViewModel
+import com.example.new_practice.app.viewModels.ChannelViewModel
 import com.example.new_practice.app.adapters.ChannelAdapter
-import com.example.new_practice.data.repos.ChannelRepositoryImpl
 import com.example.new_practice.domain.models.ChannelModel
+import dagger.hilt.android.AndroidEntryPoint
 
 @UnstableApi
-class ChannelFragment(private val position: Int): Fragment() {
+@AndroidEntryPoint
+class ChannelFragment: Fragment() {
 
-    private lateinit var channelRepo: ChannelRepositoryImpl
-    private lateinit var vm: ChannelViewModel
+    private val vm: ChannelViewModel by viewModels()
     private var adapter: ChannelAdapter? = null
+    private var isFavourite: Boolean = false
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -36,12 +36,7 @@ class ChannelFragment(private val position: Int): Fragment() {
             container,
             false)
 
-        vm = ViewModelProvider(
-            requireActivity(),
-            AppViewModelFactory(requireContext())
-        )[ChannelViewModel::class.java]
-
-        channelRepo = ChannelRepositoryImpl.getInstance(context)
+        isFavourite = requireArguments().getBoolean(IS_FAV)
 
         val recyclerView = view.findViewById<RecyclerView>(R.id.recyclerView)
         val searchTextView = view.findViewById<TextView>(R.id.searchTextView)
@@ -73,8 +68,8 @@ class ChannelFragment(private val position: Int): Fragment() {
 
         }
 
-        vm.getChannels(channelRepo.searchFlow).observe(viewLifecycleOwner) {
-            val result: DiffUtil.DiffResult? = if (position == 1) {
+        vm.getChannels().observe(viewLifecycleOwner) {
+            val result: DiffUtil.DiffResult? = if (isFavourite) {
                 val newFavChannels: MutableList<ChannelModel> = mutableListOf()
                 for (i in it.indices) {
                     val channel: ChannelModel = it[i]
@@ -97,14 +92,29 @@ class ChannelFragment(private val position: Int): Fragment() {
         return view
     }
 
+    fun onQueryChanged(text: String) {
+        vm.searchFlow.value = text
+    }
+
     private fun clickOnChannelView(channel: ChannelModel) {
         val fragmentManager = requireActivity().supportFragmentManager
         val fragmentTransaction = fragmentManager.beginTransaction()
-        fragmentTransaction.replace(R.id.videoContainer, VideoFragment.getInstance(channel.id))
+        fragmentTransaction.replace(R.id.videoContainer, VideoFragment.newInstance(channel.id))
         fragmentTransaction.commitAllowingStateLoss()
     }
 
     private fun clickOnFavoriteView(channel: ChannelModel) {
         vm.changeFavChannel(channelId = channel.id)
+    }
+
+    companion object {
+        private const val IS_FAV = "IS_FAV"
+        fun newInstance(isFav: Boolean): ChannelFragment {
+            val fragment = ChannelFragment()
+            val bundle = Bundle()
+            bundle.putBoolean(IS_FAV, isFav)
+            fragment.arguments = bundle
+            return fragment
+        }
     }
 }

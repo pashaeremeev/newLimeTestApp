@@ -8,7 +8,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.new_practice.app.ClickQualityListener
 import com.example.new_practice.app.Quality
 import com.example.new_practice.R
-import com.example.new_practice.app.viewHolders.QualityHolder
+import com.example.new_practice.app.presentation.viewHolders.QualityHolder
 
 class QualityAdapter(
     context: Context,

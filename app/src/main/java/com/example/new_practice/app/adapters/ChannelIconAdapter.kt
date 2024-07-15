@@ -9,9 +9,8 @@ import com.bumptech.glide.Glide
 import com.example.new_practice.app.ClickIconListener
 import com.example.new_practice.R
 import com.example.new_practice.app.diffUtils.ChannelDiffUtilCallback
-import com.example.new_practice.data.storage.entities.Channel
 import com.example.new_practice.domain.models.ChannelModel
-import com.example.new_practice.app.viewHolders.ViewIconHolder
+import com.example.new_practice.app.presentation.viewHolders.ViewIconHolder
 
 class ChannelIconAdapter(context: Context,
 clickListener: ClickIconListener

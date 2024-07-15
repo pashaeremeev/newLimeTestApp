@@ -1,6 +1,6 @@
-package com.example.new_practice.app
+package com.example.new_practice.app.network
 
-import com.example.new_practice.json.ChannelJsonModel
+import com.example.new_practice.app.json.ChannelJsonModel
 import retrofit2.Call
 import retrofit2.http.GET
 

@@ -1,36 +1,27 @@
 package com.example.new_practice.data.repos
 
-import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.map
 import com.example.new_practice.domain.repos.ChannelRepository
 import com.example.new_practice.data.storage.entities.Channel
-import com.example.new_practice.data.storage.DbImpl.AppDatabase
-import com.example.new_practice.data.storage.DbImpl.RoomInstance
+import com.example.new_practice.data.storage.implDb.AppDatabase
 import com.example.new_practice.domain.models.ChannelModel
-import com.example.new_practice.app.DownloadChannels
+import com.example.new_practice.app.network.DownloadChannels
+import com.example.new_practice.domain.repos.EpgRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
-class ChannelRepositoryImpl(context: Context): ChannelRepository {
-
-    private val appDatabase: AppDatabase
-
-    val searchFlow: MutableStateFlow<String> = MutableStateFlow("")
-    val currentChannelId: MutableStateFlow<Int?> = MutableStateFlow(null)
-
-    override fun setSearchFilter(text: String) {
-        searchFlow.value = text
-    }
+class ChannelRepositoryImpl(
+    private val appDatabase: AppDatabase,
+    epgRepository: EpgRepository
+) : ChannelRepository {
 
     init {
-        appDatabase = RoomInstance.getInstance(context)
         DownloadChannels.downloadChannels(
-            this, EpgRepositoryImpl.getInstance(context)
+            this, epgRepository
         )
     }
 
@@ -65,7 +56,7 @@ class ChannelRepositoryImpl(context: Context): ChannelRepository {
             }
         }
 
-    val channelsFlow: Flow<List<Channel>> = appDatabase.channelsDao().getChannelsFlow()
+    //val channelsFlow: Flow<List<Channel>> = appDatabase.channelsDao().getChannelsFlow()
 
     override fun searchChannels(searchTextParam: String): Flow<List<ChannelModel>> {
         return appDatabase.channelsDao().searchChannels(searchTextParam).map { channelsList ->
@@ -84,7 +75,9 @@ class ChannelRepositoryImpl(context: Context): ChannelRepository {
     }
 
     override fun getById(id: Int): LiveData<ChannelModel?> {
-        return appDatabase.channelsDao().getChannelById(id).map { return@map it.firstOrNull()?.toChannelModel() }
+        return appDatabase.channelsDao().getChannelById(id).map {
+            return@map it.firstOrNull()?.toChannelModel()
+        }
     }
 
     private fun fromChannelModelToChannel(channel: ChannelModel): Channel {
@@ -99,9 +92,12 @@ class ChannelRepositoryImpl(context: Context): ChannelRepository {
 
     companion object {
         private var channelRepo: ChannelRepositoryImpl? = null
-        fun getInstance(context: Context?): ChannelRepositoryImpl {
+        fun getInstance(
+            appDatabase: AppDatabase,
+            epgRepository: EpgRepository
+        ): ChannelRepositoryImpl {
             if (channelRepo == null) {
-                channelRepo = ChannelRepositoryImpl(context!!)
+                channelRepo = ChannelRepositoryImpl(appDatabase, epgRepository)
             }
             return channelRepo!!
         }

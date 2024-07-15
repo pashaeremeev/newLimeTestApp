@@ -1,4 +1,4 @@
-package com.example.new_practice.data.storage.DbImpl.dao
+package com.example.new_practice.data.storage.implDb.dao
 
 import androidx.lifecycle.LiveData
 import androidx.room.Dao

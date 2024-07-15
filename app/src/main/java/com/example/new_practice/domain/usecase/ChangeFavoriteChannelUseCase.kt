@@ -1,6 +1,5 @@
 package com.example.new_practice.domain.usecase
 
-import com.example.new_practice.domain.models.ChannelModel
 import com.example.new_practice.domain.repos.ChannelRepository
 
 class ChangeFavoriteChannelUseCase(

@@ -1,4 +1,4 @@
-package com.example.new_practice.data.storage.DbImpl
+package com.example.new_practice.data.storage.implDb
 
 import android.content.Context
 import androidx.room.Room
